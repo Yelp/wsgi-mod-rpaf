@@ -15,7 +15,7 @@ from wsgi_mod_rpaf import wsgi_mod_rpaf_middleware
 
 ...
 
-app = wsgi_mod_rpaf_middleware('/path/to/rpaf.conf', app)
+app = wsgi_mod_rpaf_middleware(app, '/path/to/rpaf.conf')
 ```
 
 ## Supported directives
