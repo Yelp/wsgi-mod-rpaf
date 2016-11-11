@@ -78,7 +78,7 @@ def _rewrite_environ(environ, networks):
     return environ
 
 
-def wsgi_mod_rpaf_middleware(conf, app):
+def wsgi_mod_rpaf_middleware(app, conf):
     with io.open(conf) as conf_file:
         networks = _parse_file(conf_file)
 
