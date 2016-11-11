@@ -78,4 +78,14 @@ def test_x_forwarded_for_is_all_proxy_ips(wrapped_app):
         REMOTE_ADDR: str('127.0.0.1'),
         HTTP_X_FORWARDED_FOR: str('10.1.2.3, 127.0.0.1'),
     }
+    # mod-rpaf sets this to the last proxy ip, *not* remote_addr.  See #1
+    assert wrapped_app.get('/', extra_environ=environ).body == b'10.1.2.3'
+
+
+def test_x_forwarded_for_all_garbage(wrapped_app):
+    """Shouldn't ever happen, but it is a reasonable test"""
+    environ = {
+        REMOTE_ADDR: str('127.0.0.1'),
+        HTTP_X_FORWARDED_FOR: str('such, garbage'),
+    }
     assert wrapped_app.get('/', extra_environ=environ).body == b'127.0.0.1'
