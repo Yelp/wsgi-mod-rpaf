@@ -33,7 +33,7 @@ def remote_addr_app(environ, start_response):
 @pytest.yield_fixture
 def wrapped_app():
     yield webtest.TestApp(wsgi_mod_rpaf.wsgi_mod_rpaf_middleware(
-        'testing/rpaf.conf', remote_addr_app,
+        remote_addr_app, 'testing/rpaf.conf',
     ))
 
 
