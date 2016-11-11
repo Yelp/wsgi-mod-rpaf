@@ -64,13 +64,17 @@ def _rewrite_environ(environ, networks):
     environ = dict(environ)
     x_forwarded_for = wsgi_to_text(environ['HTTP_X_FORWARDED_FOR'])
     # Search from the end for the first ip which is not a proxy ip
+    ip_to_set = None
     for ip in x_forwarded_for.split(',')[::-1]:
         ip = _safe_parse_ip(ip.strip())
         if _ip_in_networks(ip, networks):
+            ip_to_set = ip
             continue
         elif ip is not UNPARSEABLE_IP:
-            environ[str('REMOTE_ADDR')] = text_to_wsgi(six.text_type(ip))
+            ip_to_set = ip
             break
+    if ip_to_set is not None:
+        environ[str('REMOTE_ADDR')] = text_to_wsgi(six.text_type(ip_to_set))
     return environ
 
 

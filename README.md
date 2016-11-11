@@ -45,7 +45,8 @@ if 'X-Forwarded-For' not in headers:
 forwarded_ips = whitespace stripped, split by ',' of X-Forwarded-For header
 
 look from the right of forwarded_ips, find the first ip that is not in the
-proxy ips.  The first one found is the ip to set
+proxy ips.  The first one found is the ip to set.  If all ips in
+X-Forwarded-For are proxy ips, the leftmost one is set.
 
 If none are found:
     return
