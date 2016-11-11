@@ -4,7 +4,7 @@ setup(
     name='wsgi-mod-rpaf',
     description='WSGI middleware implementing apache mod-rpaf',
     url='https://github.com/Yelp/wsgi-mod-rpaf',
-    version='1.0.0',
+    version='1.0.1',
     author='Anthony Sottile',
     author_email='asottile@umich.edu',
     classifiers=[
