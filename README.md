@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/Yelp/wsgi-mod-rpaf.svg?branch=master)](https://travis-ci.org/Yelp/wsgi-mod-rpaf)
-[![Coverage Status](https://img.shields.io/coveralls/Yelp/wsgi-mod-rpaf.svg?branch=master)](https://coveralls.io/r/Yelp/wsgi-mod-rpaf)
+[![Coverage Status](https://coveralls.io/repos/github/Yelp/wsgi-mod-rpaf/badge.svg?branch=master)](https://coveralls.io/github/Yelp/wsgi-mod-rpaf?branch=master)
 
 wsgi-mod-rpaf
 =============
