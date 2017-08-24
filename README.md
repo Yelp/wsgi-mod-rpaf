@@ -10,13 +10,36 @@ framework.
 ## Usage
 
 
+If you're reading from a traditional `mod_rpaf` config file:
+
 ```python
+from wsgi_mod_rpaf import from_apache_config
 from wsgi_mod_rpaf import wsgi_mod_rpaf_middleware
 
 ...
 
-app = wsgi_mod_rpaf_middleware(app, '/path/to/rpaf.conf')
+app = wsgi_mod_rpaf_middleware(
+    app,
+    trusted_networks=from_apache_config('/path/to/rpaf.conf'),
+)
 ```
+
+Alternatively, you can supply the networks yourself:
+
+```python
+import ipaddress
+
+...
+
+app = wsgi_mod_rpaf_middleware(
+    app,
+    trusted_networks={
+        ipaddress.ip_network('127.0.0.1'),
+        ipaddress.ip_network('10.0.0.0/8'),
+    },
+)
+```
+
 
 ## Supported directives
 
