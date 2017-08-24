@@ -23,27 +23,32 @@ else:  # pragma: no cover (py3)
         return s
 
 
-PROXY_IPS_DIRECTIVE = 'RPAFproxy_ips '
+def from_apache_config(path, directive='RPAFproxy_ips'):
+    """Parse trusted networks out of a mod_rpaf-compatible config.
 
+    Different versions of mod_rpaf have different directive names. For example,
+    newer versions use the directive "RPAF_ProxyIPs".
+    """
+    directive += ' '
+    networks = set()
 
-def _parse_file(f):
-    networks = []
-    for line in f:
-        line = line.strip()
-        if not line or line.startswith('#'):
-            continue
-        assert line.startswith(PROXY_IPS_DIRECTIVE), line
-        line = line[len(PROXY_IPS_DIRECTIVE):]
-        networks.append(ipaddress.ip_network(line))
+    with io.open(path) as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            assert line.startswith(directive), line
+            line = line[len(directive):]
+            networks.add(ipaddress.ip_network(line))
 
-    return tuple(networks)
+    return frozenset(networks)
 
 
 UNPARSEABLE_IP = type(str('UNPARSEABLE_IP'), (object,), {'__slots__': ()})()
 
 
 def _safe_parse_ip(s):
-    """Returns None if it is not a valid IP"""
+    """Returns UNPARSEABLE_IP if it is not a valid IP"""
     try:
         return ipaddress.ip_address(s)
     except ValueError:
@@ -78,9 +83,12 @@ def _rewrite_environ(environ, networks):
     return environ
 
 
-def wsgi_mod_rpaf_middleware(app, conf):
-    with io.open(conf) as conf_file:
-        networks = _parse_file(conf_file)
+def wsgi_mod_rpaf_middleware(app, **kwargs):
+    networks = kwargs.pop('trusted_networks')
+    assert not kwargs, 'Extra arguments provided: {}'.format(kwargs)
+
+    for network in networks:
+        assert isinstance(network, ipaddress.IPv4Network), network
 
     def wsgi_mod_rpaf_app(environ, start_response):
         if (

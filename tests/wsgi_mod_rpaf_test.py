@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import io
 import ipaddress
 
 import pytest
@@ -10,8 +9,9 @@ import webtest
 import wsgi_mod_rpaf
 
 
-def test_parse_file():
-    f = io.StringIO(
+def test_from_apache_config(tmpdir):
+    conf = tmpdir.join('conf')
+    conf.write(
         '\n'
         '# I am a comment\n'
         '# This is an ip without a mask\n'
@@ -19,10 +19,24 @@ def test_parse_file():
         '# This is an ip with a mask\n'
         'RPAFproxy_ips 10.0.0.0/8\n'
     )
-    ret = wsgi_mod_rpaf._parse_file(f)
-    assert ret == (
+    ret = wsgi_mod_rpaf.from_apache_config(conf.strpath)
+    assert ret == {
         ipaddress.ip_network('1.2.3.4'), ipaddress.ip_network('10.0.0.0/8'),
+    }
+
+
+def test_from_apache_config_custom_directive(tmpdir):
+    conf = tmpdir.join('conf')
+    conf.write(
+        'RPAF_ProxyIPs 1.2.3.4\n'
+        'RPAF_ProxyIPs 10.0.0.0/8\n'
     )
+    ret = wsgi_mod_rpaf.from_apache_config(
+        conf.strpath, directive='RPAF_ProxyIPs',
+    )
+    assert ret == {
+        ipaddress.ip_network('1.2.3.4'), ipaddress.ip_network('10.0.0.0/8'),
+    }
 
 
 def remote_addr_app(environ, start_response):
@@ -33,7 +47,11 @@ def remote_addr_app(environ, start_response):
 @pytest.yield_fixture
 def wrapped_app():
     yield webtest.TestApp(wsgi_mod_rpaf.wsgi_mod_rpaf_middleware(
-        remote_addr_app, 'testing/rpaf.conf',
+        remote_addr_app,
+        trusted_networks={
+            ipaddress.ip_network('127.0.0.1'),
+            ipaddress.ip_network('10.0.0.0/8'),
+        },
     ))
 
 
