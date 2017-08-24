@@ -29,6 +29,8 @@ Alternatively, you can supply the networks yourself:
 ```python
 import ipaddress
 
+from wsgi_mod_rpaf import wsgi_mod_rpaf_middleware
+
 ...
 
 app = wsgi_mod_rpaf_middleware(
