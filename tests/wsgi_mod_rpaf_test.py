@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import io
 import ipaddress
 
 import pytest
@@ -10,8 +9,9 @@ import webtest
 import wsgi_mod_rpaf
 
 
-def test_from_apache_config():
-    f = io.StringIO(
+def test_from_apache_config(tmpdir):
+    conf = tmpdir.join('conf')
+    conf.write(
         '\n'
         '# I am a comment\n'
         '# This is an ip without a mask\n'
@@ -19,18 +19,21 @@ def test_from_apache_config():
         '# This is an ip with a mask\n'
         'RPAFproxy_ips 10.0.0.0/8\n'
     )
-    ret = wsgi_mod_rpaf.from_apache_config(f)
+    ret = wsgi_mod_rpaf.from_apache_config(conf.strpath)
     assert ret == {
         ipaddress.ip_network('1.2.3.4'), ipaddress.ip_network('10.0.0.0/8'),
     }
 
 
-def test_from_apache_config_custom_directive():
-    f = io.StringIO(
+def test_from_apache_config_custom_directive(tmpdir):
+    conf = tmpdir.join('conf')
+    conf.write(
         'RPAF_ProxyIPs 1.2.3.4\n'
         'RPAF_ProxyIPs 10.0.0.0/8\n'
     )
-    ret = wsgi_mod_rpaf.from_apache_config(f, directive='RPAF_ProxyIPs')
+    ret = wsgi_mod_rpaf.from_apache_config(
+        conf.strpath, directive='RPAF_ProxyIPs',
+    )
     assert ret == {
         ipaddress.ip_network('1.2.3.4'), ipaddress.ip_network('10.0.0.0/8'),
     }

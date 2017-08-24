@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import io
 import ipaddress
 
 import six
@@ -22,7 +23,7 @@ else:  # pragma: no cover (py3)
         return s
 
 
-def from_apache_config(f, directive='RPAFproxy_ips'):
+def from_apache_config(path, directive='RPAFproxy_ips'):
     """Parse trusted networks out of a mod_rpaf-compatible config.
 
     Different versions of mod_rpaf have different directive names. For example,
@@ -30,13 +31,15 @@ def from_apache_config(f, directive='RPAFproxy_ips'):
     """
     directive += ' '
     networks = set()
-    for line in f:
-        line = line.strip()
-        if not line or line.startswith('#'):
-            continue
-        assert line.startswith(directive), line
-        line = line[len(directive):]
-        networks.add(ipaddress.ip_network(line))
+
+    with io.open(path) as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            assert line.startswith(directive), line
+            line = line[len(directive):]
+            networks.add(ipaddress.ip_network(line))
 
     return frozenset(networks)
 
