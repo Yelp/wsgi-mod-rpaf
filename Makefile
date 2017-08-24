@@ -5,8 +5,7 @@ all: venv test
 venv:
 	tox -e venv
 
-.PHONY: tests test
-tests: test
+.PHONY: test
 test:
 	tox $(REBUILD_FLAG)
 
